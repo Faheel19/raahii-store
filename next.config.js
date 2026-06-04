@@ -5,9 +5,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // If your GitHub repo is at username.github.io/raahii — set basePath:
-  // basePath: '/raahii',
-  // If you use a custom domain (raahii.us) — leave basePath empty (already done)
+  basePath: '/raahii-store',
 };
 
 module.exports = nextConfig;
