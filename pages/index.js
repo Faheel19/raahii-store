@@ -169,9 +169,8 @@ const styles = {
   heroTitle: {
     display: "flex",
     flexDirection: "column",
-    gap: "0.25rem",
+    gap: "0",
     marginBottom: "1.25rem",
-    position: "relative",
   },
   heroEn: {
     fontSize: "clamp(4rem, 12vw, 10rem)",
@@ -183,11 +182,11 @@ const styles = {
   heroUrdu: {
     fontSize: "clamp(2rem, 5vw, 4.5rem)",
     color: "var(--accent)",
-    lineHeight: 1.2,
+    lineHeight: 1.3,
     display: "block",
     textAlign: "left",
     direction: "rtl",
-    marginTop: "0.25rem",
+    width: "fit-content",
   },
   heroSub: {
     fontSize: "0.9rem",
@@ -275,15 +274,14 @@ const styles = {
     aspectRatio: "2/3",
     overflow: "hidden",
     display: "block",
-    background: "#1a1208",
+    background: "#ffffff",
   },
   collectionImg: {
     width: "100%",
     height: "100%",
-    objectFit: "contain",
-    objectPosition: "center bottom",
+    objectFit: "cover",
+    objectPosition: "center",
     transition: "transform 0.5s ease",
-    padding: "1rem 1rem 0",
   },
   collectionOverlay: {
     position: "absolute",
