@@ -142,8 +142,9 @@ const styles = {
     display: "flex",
     alignItems: "flex-end",
     backgroundSize: "cover",
-    backgroundPosition: "center top",
+    backgroundPosition: "center center",
     backgroundRepeat: "no-repeat",
+    backgroundAttachment: "fixed",
   },
   heroOverlay: {
     position: "absolute",
@@ -170,6 +171,7 @@ const styles = {
     flexDirection: "column",
     gap: "0.25rem",
     marginBottom: "1.25rem",
+    position: "relative",
   },
   heroEn: {
     fontSize: "clamp(4rem, 12vw, 10rem)",
@@ -179,9 +181,13 @@ const styles = {
     color: "var(--white)",
   },
   heroUrdu: {
-    fontSize: "clamp(2.5rem, 7vw, 6rem)",
+    fontSize: "clamp(2rem, 5vw, 4.5rem)",
     color: "var(--accent)",
     lineHeight: 1.2,
+    display: "block",
+    textAlign: "left",
+    direction: "rtl",
+    marginTop: "0.25rem",
   },
   heroSub: {
     fontSize: "0.9rem",
@@ -266,16 +272,18 @@ const styles = {
   },
   collectionCard: {
     position: "relative",
-    aspectRatio: "3/4",
+    aspectRatio: "2/3",
     overflow: "hidden",
     display: "block",
-    background: "var(--gray-light)",
+    background: "#1a1208",
   },
   collectionImg: {
     width: "100%",
     height: "100%",
-    objectFit: "cover",
+    objectFit: "contain",
+    objectPosition: "center bottom",
     transition: "transform 0.5s ease",
+    padding: "1rem 1rem 0",
   },
   collectionOverlay: {
     position: "absolute",
@@ -331,7 +339,7 @@ const styles = {
   spotlightOverlay: {
     position: "absolute",
     inset: 0,
-    background: "linear-gradient(to right, rgba(10,10,10,0.95) 40%, rgba(10,10,10,0.3) 100%)",
+    background: "linear-gradient(to right, rgba(10,10,10,0.88) 35%, rgba(10,10,10,0.15) 100%)",
   },
   spotlightContent: {
     position: "relative",
