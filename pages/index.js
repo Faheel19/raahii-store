@@ -180,13 +180,12 @@ const styles = {
     color: "var(--white)",
   },
   heroUrdu: {
-    fontSize: "clamp(2rem, 5vw, 4.5rem)",
+    fontSize: "clamp(2rem, 5vw, 4rem)",
     color: "var(--accent)",
     lineHeight: 1.3,
     display: "block",
-    textAlign: "left",
-    direction: "rtl",
-    width: "fit-content",
+    direction: "ltr",
+    unicodeBidi: "plaintext",
   },
   heroSub: {
     fontSize: "0.9rem",
