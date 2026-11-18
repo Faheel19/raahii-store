@@ -14,7 +14,7 @@ export default function Nav() {
             <span className="urdu" style={styles.logoUrdu}>را ہی</span>
           </Link>
 
-          <div style={styles.links}>
+          <div className="nav-links" style={styles.links}>
             {collections.map((c) => (
               <Link key={c.id} href={`/collections/${c.slug}`} style={styles.link}>
                 {c.name}
@@ -22,7 +22,10 @@ export default function Nav() {
             ))}
           </div>
 
+          <Link href="/cart/" style={styles.link}>Bag</Link>
           <button
+            className="nav-burger"
+            aria-expanded={open}
             style={styles.burger}
             onClick={() => setOpen(!open)}
             aria-label="Toggle menu"

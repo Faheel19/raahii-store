@@ -2,11 +2,11 @@ import Head from "next/head";
 import Link from "next/link";
 import { useState } from "react";
 import Layout from "../../components/Layout";
-import { products, collections, getProductById } from "../../data/products";
+import { products, collections, productAliases, getProductById } from "../../data/products";
 
 export async function getStaticPaths() {
   return {
-    paths: products.map((p) => ({ params: { id: p.id } })),
+    paths: [...new Set([...products.map(p => p.id), ...Object.keys(productAliases).filter(id => getProductById(id))])].map(id => ({params: {id}})),
     fallback: false,
   };
 }
@@ -18,26 +18,25 @@ export async function getStaticProps({ params }) {
 }
 
 export default function ProductPage({ product, collection }) {
-  const [selectedSize, setSelectedSize] = useState(null);
-  const [showSizeError, setShowSizeError] = useState(false);
-
+  const [selection, setSelection] = useState({});
+  const [added, setAdded] = useState(false);
+  const variant = product.variants.find(v => v.selectedOptions.every(o => selection[o.name] === o.value));
   function handleBuy() {
-    if (!selectedSize) {
-      setShowSizeError(true);
-      return;
-    }
-    // Append size to Stripe link as a custom field if needed,
-    // or just open the link — Stripe lets you add custom fields in the dashboard.
-    // For now we open the link with size as a URL param for your records.
-    const url = `${product.stripeLink}?prefilled_custom1=${encodeURIComponent(selectedSize)}`;
-    window.open(url, "_blank");
+    if (!variant?.availableForSale) return;
+    const cart = JSON.parse(localStorage.getItem("raahii-cart") || "[]");
+    const existing = cart.find(item => item.variantId === variant.id);
+    if (existing) existing.quantity = Math.min(10, existing.quantity + 1);
+    else cart.push({variantId: variant.id, quantity: 1});
+    localStorage.setItem("raahii-cart", JSON.stringify(cart));
+    setAdded(true);
   }
 
   return (
     <Layout>
       <Head>
         <title>{product.name} — RAAHII</title>
-        <meta name="description" content={product.description} />
+        <meta name="description" content={product.seo?.description || product.description.slice(0,160)} />
+        <link rel="canonical" href={`https://raahii.us/products/${product.id}/`} />
         {product.images?.[0] && <meta property="og:image" content={product.images[0]} />}
       </Head>
 
@@ -51,7 +50,7 @@ export default function ProductPage({ product, collection }) {
           <span style={styles.breadCurrent}>{product.name}</span>
         </div>
 
-        <div style={styles.layout}>
+        <div className="product-layout" style={styles.layout}>
           {/* Image */}
           <div style={styles.imageSection}>
             <div style={styles.imageWrap}>
@@ -74,54 +73,31 @@ export default function ProductPage({ product, collection }) {
               <p style={styles.collectionLabel}>{collection.name}</p>
               <h1 style={styles.productName}>{product.name}</h1>
               <p className="urdu" style={styles.productNameUrdu}>{product.nameUrdu}</p>
-              <p style={styles.price}>${product.price}</p>
+              <p style={styles.price}>${variant ? Number(variant.price).toFixed(2) : product.price.toFixed(2)}</p>
             </div>
 
-            <p style={styles.description}>{product.description}</p>
+            <div className="product-description" style={styles.description} dangerouslySetInnerHTML={{__html: product.descriptionHtml}} />
 
-            {/* Size selector */}
-            <div style={styles.sizeSection}>
-              <p style={styles.sizeLabel}>
-                Size
-                {selectedSize && <span style={styles.selectedSize}> — {selectedSize}</span>}
-              </p>
-              <div style={styles.sizeGrid}>
-                {product.sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => { setSelectedSize(size); setShowSizeError(false); }}
-                    style={{
-                      ...styles.sizeBtn,
-                      ...(selectedSize === size ? styles.sizeBtnActive : {}),
-                    }}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-              {showSizeError && (
-                <p style={styles.sizeError}>Please select a size</p>
-              )}
-            </div>
-
-            {/* Buy button */}
-            {product.isSoldOut ? (
-              <button style={styles.btnSoldOut} disabled>Sold Out</button>
-            ) : product.stripeLink === "https://buy.stripe.com/REPLACE_ME" ? (
-              <div style={styles.setupNotice}>
-                <p style={styles.setupText}>
-                  ⚠️ Add your Stripe payment link in <code>data/products.js</code> to enable checkout.
-                </p>
-              </div>
-            ) : (
-              <button style={styles.btnBuy} onClick={handleBuy}>
-                Buy Now — ${product.price}
-              </button>
-            )}
-
-            <p style={styles.stripeNote}>
-              Secure checkout powered by Stripe
-            </p>
+            {product.options.map(option => (
+              <fieldset key={option.name} style={{border: "none"}}>
+                <legend style={styles.sizeLabel}>{option.name}</legend>
+                <div style={styles.sizeGrid}>
+                  {option.values.map(value => (
+                    <button key={value} aria-pressed={selection[option.name] === value}
+                      onClick={() => {setSelection({...selection, [option.name]: value}); setAdded(false);}}
+                      style={{...styles.sizeBtn, width: "auto", minWidth: 48, padding: "0 12px", ...(selection[option.name] === value ? styles.sizeBtnActive : {})}}>
+                      {value}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+            ))}
+            <button style={variant?.availableForSale ? styles.btnBuy : styles.btnSoldOut}
+              disabled={!variant?.availableForSale} onClick={handleBuy}>
+              {product.isSoldOut ? "Sold out" : !variant ? "Select your options" : !variant.availableForSale ? "Unavailable" : "Add to bag"}
+            </button>
+            {added && <p role="status">Added to your bag. <Link href="/cart/">View bag →</Link></p>}
+            <p style={styles.stripeNote}>Choose your color and size before adding to your bag.</p>
           </div>
         </div>
       </div>
