@@ -1,120 +1,46 @@
-# RAAHII Store — Self-Hosted on GitHub Pages
+# RAAHII storefront migration
 
-South Asian streetwear storefront. No Shopify. No monthly fees.
+Next.js static storefront with source on GitHub and a Cloudflare Pages Function for Stripe-hosted checkout. Work in progress: Shopify remains the live store until the launch checklist is complete.
 
-**Stack:** Next.js (static export) → GitHub Pages → Stripe Checkout
+## Recovered on November 8, 2026
 
----
+12 active storefront products, 164 variants, 6 collections, 2 content pages, storefront navigation menus and shop policies. Original handles, prices, descriptions, size guides and memberships are exported in `data/shopify-catalog.json`. Product and homepage images are mirrored in `public/images/`.
 
-## Setup
+Only active published products appear in browsing and checkout. Archived catalog data remains in the source backup. No customers, orders or credentials are included. Recovered Printful product IDs are unverified; Shopify SKUs are not automatically Printful sync variant IDs.
 
-### 1. Install dependencies
+## Development
 
-```bash
-npm install
-npm run dev     # localhost:3000
+```sh
+npm ci
+npm test
+npm run dev
+npm run build
 ```
 
-### 2. Add your products
+Build output: `out/`. `next dev` serves the storefront only; use Cloudflare Pages local development to test the function. A static server alone cannot process checkout.
 
-Edit `data/products.js`:
-- Add your product names, descriptions, prices, image paths
-- Set `stripeLink` for each product (see step 3)
+## Hosting and payments
 
-### 3. Set up Stripe
+GitHub Pages prohibits ecommerce hosting. Keep source on GitHub and deploy to a suitable host, provisionally Cloudflare Pages. The former GitHub Pages workflow now validates changes only.
 
-1. Go to [dashboard.stripe.com](https://dashboard.stripe.com)
-2. Create a free account (no monthly fee — just 2.9% + 30¢ per sale)
-3. For each product: **Products → Payment Links → Create**
-4. Copy the link (e.g. `https://buy.stripe.com/abc123`) into `data/products.js`
+In Cloudflare Pages connect the reviewed repository branch, select Framework preset **None**, Node 22, build command `npm run build`, output `out`. The root `functions/` directory implements `/api/checkout`. Do not use a Next.js server adapter.
 
-**Tip:** In Stripe Payment Links, add a "Custom field" called "Size" so customers can select their size during checkout.
+Configure server-only environment values:
 
-### 4. Add product images
+| Setting | Purpose |
+| --- | --- |
+| `CHECKOUT_ENABLED` | Keep false until payment, shipping and fulfillment verification |
+| `STORE_ORIGIN` | Exact HTTPS origin, initially the test deployment URL |
+| `STRIPE_SECRET_KEY` | Stripe test key first, stored as a host secret |
+| `SHIPPING_RATE_ID` | Approved Stripe shipping rate in the same mode/currency |
+| `SHIPPING_COUNTRIES` | Explicit comma-separated destination country codes |
 
-Put your product images in `public/images/`.  
-Reference them in `data/products.js` as `/images/your-image.jpg`.
+Checkout uses authoritative server catalog prices and exact variant/SKU data. It collects shipping details and enables Stripe automatic tax; configure Stripe Tax first. Shipping is one approved flat Stripe rate, not a live Printful quote. Verify it for all supported baskets/destinations before launch.
 
-Export from Shopify:
-- Admin → Products → Export
-- Images are linked in the CSV — download them and add to `public/images/`
+The success page never marks an order paid. Fulfillment is manual: verify payment in Stripe and place the matching Printful order. No webhook order database or fulfillment automation is included yet.
 
-### 5. Push to GitHub
+## Before launch
 
-```bash
-git init
-git add .
-git commit -m "initial commit"
-git remote add origin https://github.com/YOUR_USERNAME/raahii-store.git
-git push -u origin main
-```
+See [docs/launch-checklist.md](docs/launch-checklist.md). Visual parity, policy corrections, Printful mappings, real payment tests, hosting and domain cutover remain unverified. Do not cancel Shopify before these gates pass. Domain renewal, payment processing and production costs still apply; hosting depends on plan and usage.
 
-### 6. Enable GitHub Pages
-
-1. GitHub repo → Settings → Pages
-2. Source: **GitHub Actions**
-3. The workflow in `.github/workflows/deploy.yml` runs automatically on every push
-
-### 7. Connect your domain (raahii.us)
-
-In your domain registrar (where you bought raahii.us), set these DNS records:
-
-```
-Type    Name    Value
-A       @       185.199.108.153
-A       @       185.199.109.153
-A       @       185.199.110.153
-A       @       185.199.111.153
-CNAME   www     YOUR_USERNAME.github.io
-```
-
-Then in GitHub: Settings → Pages → Custom domain → enter `raahii.us`
-
-### 8. Cancel Shopify ✓
-
----
-
-## Fulfillment (Printful)
-
-Since you're on print-on-demand:
-
-**Option A — Manual:** When a Stripe payment comes in, log into Printful and manually place the order. Works fine at low volume.
-
-**Option B — Webhook automation:** Set up a Stripe webhook that triggers a Printful order. Needs a small serverless function (Vercel/Netlify free tier). Ask Claude to help set this up when you're ready.
-
----
-
-## Folder Structure
-
-```
-raahii-store/
-├── data/
-│   └── products.js          ← Add your products here
-├── pages/
-│   ├── index.js             ← Homepage
-│   ├── collections/[slug].js ← Collection pages
-│   └── products/[id].js     ← Product pages
-├── components/
-│   ├── Nav.js
-│   ├── Footer.js
-│   ├── Layout.js
-│   └── ProductCard.js
-├── styles/
-│   └── globals.css
-├── public/
-│   └── images/              ← Put product photos here
-└── .github/workflows/
-    └── deploy.yml           ← Auto-deploy on push
-```
-
----
-
-## Monthly Cost
-
-| Service | Cost |
-|---------|------|
-| GitHub Pages hosting | $0 |
-| Stripe (platform fee) | $0 |
-| Stripe per transaction | 2.9% + 30¢ |
-| Domain (raahii.us) | Whatever you already pay |
-| **Shopify** | **$0 (cancelled)** |
+References: [GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits), [Pages Functions pricing](https://developers.cloudflare.com/pages/functions/pricing/).

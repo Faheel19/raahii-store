@@ -6,21 +6,21 @@ import { collections, products } from "../data/products";
 
 const MARQUEE_TEXT = "RAAHII · را ہی · STREET CULTURE · ثقافت · LIMITED DROPS · URBAN FASHION · ";
 
-const HERO_IMAGE = "https://raahii.us/cdn/shop/files/IMG_2368.jpg?v=1713077418&width=2400";
+const HERO_IMAGE = "/images/d0a3be4110f72d7f3e42.jpg";
 
 const SLIDESHOW_IMAGES = [
-  "https://raahii.us/cdn/shop/files/IMG_2357.jpg?v=1713077422&width=2400",
-  "https://raahii.us/cdn/shop/files/IMG_2342.jpg?v=1713077419&width=2400",
-  "https://raahii.us/cdn/shop/files/IMG_2360.jpg?v=1713077422&width=2400",
-  "https://raahii.us/cdn/shop/files/IMG_2344.jpg?v=1713077419&width=2400",
+  "/images/c9bd5e071a1adaffc2e2.jpg",
+  "/images/60590fee69bff784ad5f.jpg",
+  "/images/446dd3c90839d0a9315b.jpg",
+  "/images/2e93a2ea548611b71713.jpg",
 ];
 
 const COLLECTION_IMAGES = {
-  sweatshirts: "https://raahii.us/cdn/shop/files/unisex-premium-sweatshirt-white-front-65ea7c104709d.jpg?v=1709866010&width=800",
-  hoodies: "https://raahii.us/cdn/shop/files/unisex-premium-hoodie-forest-green-front-65ea9b3be7157.jpg?v=1738214305&width=800",
-  tshirts: "https://raahii.us/cdn/shop/files/oversized-faded-t-shirt-faded-bone-front-6923d03f16ca3.jpg?v=1763954758&width=800",
-  limited: "https://raahii.us/cdn/shop/files/unisex-premium-hoodie-black-front-66155d0a9e482.jpg?v=1712676118&width=800",
-  embroidery: "https://raahii.us/cdn/shop/files/unisex-premium-sweatshirt-white-front-65ea758ac0f0a.jpg?v=1709867521&width=800",
+  sweatshirts: "/images/3e1eb0b45ab18faf4e32.jpg",
+  hoodies: "/images/34b476c2e4b91a85cbf6.jpg",
+  tshirts: "/images/7856a3f4f8c8a3fd2968.jpg",
+  limited: "/images/6a34aff4e369515f2176.jpg",
+  embroidery: "/images/502e73d71fa022a5bf38.jpg",
 };
 
 export default function Home() {
@@ -69,9 +69,9 @@ export default function Home() {
           <div style={styles.collectionsGrid}>
             {collections.map((col) => (
               <Link key={col.id} href={`/collections/${col.slug}`} style={styles.collectionCard}>
-                {COLLECTION_IMAGES[col.id] && (
+                {COLLECTION_IMAGES[col.id.split("-")[0]] || products.find(p => p.collection === col.id)?.images[0] && (
                   <img
-                    src={COLLECTION_IMAGES[col.id]}
+                    src={COLLECTION_IMAGES[col.id.split("-")[0]] || products.find(p => p.collection === col.id)?.images[0]}
                     alt={col.name}
                     style={styles.collectionImg}
                   />

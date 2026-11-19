@@ -1,17 +1,17 @@
 import Head from "next/head";
 import Layout from "../../components/Layout";
 import ProductCard from "../../components/ProductCard";
-import { collections, getProductsByCollection } from "../../data/products";
+import { collections, collectionAliases, getProductsByCollection } from "../../data/products";
 
 export async function getStaticPaths() {
   return {
-    paths: collections.map((c) => ({ params: { slug: c.slug } })),
+    paths: [...collections.map(c => c.slug), ...Object.keys(collectionAliases), "all"].map(slug => ({ params: { slug } })),
     fallback: false,
   };
 }
 
 export async function getStaticProps({ params }) {
-  const collection = collections.find((c) => c.slug === params.slug);
+  const collection = params.slug === "all" ? {name: "All products", nameUrdu: "", slug: "all"} : collections.find((c) => c.slug === (collectionAliases[params.slug] || params.slug));
   const products = getProductsByCollection(params.slug);
   return { props: { collection, products } };
 }
